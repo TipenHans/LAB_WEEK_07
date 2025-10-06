@@ -16,6 +16,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // ✅ Securely inject Google Maps API key into the Manifest
+        manifestPlaceholders["MAPS_API_KEY"] =
+            project.findProperty("MAPS_API_KEY") ?: ""
     }
 
     buildTypes {
@@ -27,37 +31,48 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
         jvmTarget = "11"
     }
+
     buildFeatures {
         viewBinding = true
     }
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.play.services.maps)
+    implementation(libs.play.services.location)
     implementation(libs.androidx.compilercommon)
+    implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.fragment.ktx)
+    implementation("com.google.guava:guava:31.1-android")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation(libs.androidx.activity.ktx)
-    implementation(libs.androidx.fragment.ktx)
-    implementation(libs.play.services.location)
-    implementation("com.google.guava:guava:31.1-android")
-
 }
 
+// ✅ Prevent duplicate Guava dependency conflicts
 configurations.all {
     exclude(group = "com.google.guava", module = "listenablefuture")
+}
+
+secrets {
+    // If secrets.properties doesn’t exist, create it in the same folder as local.properties
+    // and add your key like this:
+    // MAPS_API_KEY=AIzaSyYourActualApiKey
+    propertiesFileName = "secrets.properties"
+    defaultPropertiesFileName = "local.properties"
 }
