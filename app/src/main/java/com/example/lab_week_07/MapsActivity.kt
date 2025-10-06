@@ -2,6 +2,9 @@ package com.example.lab_week_07
 
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.pm.PackageManager
+import android.location.Location
+import com.google.android.gms.location.LocationServices
+
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -24,6 +27,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
+
+    private val fusedLocationProviderClient by lazy {
+        LocationServices.getFusedLocationProviderClient(this)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,7 +97,32 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             .create().show()
     }
     private fun getLastLocation() {
-        Log.d("MapsActivity", "getLastLocation() called.")
+            if (hasLocationPermission()) {
+                try {
+                    fusedLocationProviderClient.lastLocation
+                        .addOnSuccessListener { location: Location? ->
+                            location?.let {
+                                val userLocation = LatLng(location.latitude,
+                                    location.longitude)
+                                updateMapLocation(userLocation)
+                                addMarkerAtLocation(userLocation, "You")
+                            }
+                        }
+                } catch (e: SecurityException) {
+                    Log.e("MapsActivity", "SecurityException: ${e.message}")
+                }
+            } else {
+                // If permission was rejected
+                requestPermissionLauncher.launch(ACCESS_FINE_LOCATION)
+            }
     }
 
+    private fun updateMapLocation(location: LatLng) {
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+            location, 7f))
+    }
+    private fun addMarkerAtLocation(location: LatLng, title: String) {
+        mMap.addMarker(MarkerOptions().title(title)
+            .position(location))
+    }
 }

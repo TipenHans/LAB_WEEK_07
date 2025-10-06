@@ -47,9 +47,17 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.play.services.maps)
+    implementation(libs.androidx.compilercommon)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.fragment.ktx)
+    implementation(libs.play.services.location)
+    implementation("com.google.guava:guava:31.1-android")
+
+}
+
+configurations.all {
+    exclude(group = "com.google.guava", module = "listenablefuture")
 }
